@@ -29,9 +29,9 @@ import {
 const Products = ({navigation, route}) => {
   const {type} = route.params;
 
-    const books = useSelector(state => state.book.booksByCategory[type]) || []; // Lấy trạng thái Redux
+  const books = useSelector(state => state.book.booksByCategory[type]) || []; // Lấy trạng thái Redux
 
-    // Lấy dữ liệu sách dựa trên danh mục ID từ trạng thái Redux
+  // Lấy dữ liệu sách dựa trên danh mục ID từ trạng thái Redux
 
   return (
     <View>
@@ -75,8 +75,6 @@ const Products = ({navigation, route}) => {
   );
 };
 
-const styles = StyleSheet.create({
-  
-});
+const styles = StyleSheet.create({});
 
 export default Products;

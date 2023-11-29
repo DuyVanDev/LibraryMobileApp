@@ -14,23 +14,31 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import bookReducer from './slice/bookSlice';
+import userReducer from './slice/userSlice'
 
-const persistConfig = {
-  key: 'root',
+const persistConfigUser = {
+  key: 'user',
   storage: AsyncStorage,
 };
 
-const persistedReducer = persistReducer(persistConfig, bookReducer);
+const persistConfigBook = {
+  key: 'book',
+  storage: AsyncStorage,
+};
+
+const persistedReducer = persistReducer(persistConfigBook, bookReducer);
+const persistedUserReducer = persistReducer(persistConfigUser, userReducer);
 
 export const store = configureStore({
   reducer: {
     book: persistedReducer,
+    user : persistedUserReducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-      },
+      }
     }),
 });
 

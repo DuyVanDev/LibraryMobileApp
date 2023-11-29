@@ -10,15 +10,17 @@ import {
 } from 'react-native';
 import {colors, sizes} from '../constants/theme';
 import Entypo from 'react-native-vector-icons/Entypo';
+import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useDispatch, useSelector} from 'react-redux';
 import {addBookRecently, startReading} from '../redux/slice/bookSlice';
+import api from "../api/client"
 
 const Detail = ({navigation, route}) => {
   const {product} = route.params;
-  
-  const booksRecently = useSelector((state) => state.book.booksRecently)
+  const user = useSelector(state => state.user.userInfo)
+  const booksRecently = useSelector(state => state.book.booksRecently);
   const isBookExist = booksRecently.some(item => item.bookId == product.bookId);
   const {bookId} = product;
 
@@ -31,101 +33,114 @@ const Detail = ({navigation, route}) => {
     dispatch(addBookRecently({...product}));
     // dispatch(startReading({bookId: bookId}));
   };
+  const handleBorrow = async (bookId, userId) => {
+    const response = await api.post(`/api/Transaction/borrow?bookId=${bookId}&userId=${userId}`)
+    const data = await response.data;
+    if(data) {
+      console.log(data)
+    }
+
+  }
+  const handleListen = () => {
+    navigation.navigate('Listen', {
+      product,
+    });
+  };
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor={colors.black} barStyle="dark-content" />
-      <View style={styles.prev_icon}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Entypo
-            name="chevron-left"
-            style={{
-              fontSize: 18,
-              color: colors.black,
-              padding: 12,
-              borderRadius: 4,
-            }}
-          />
-        </TouchableOpacity>
-      </View>
       <ScrollView>
-        <View style={styles.container_image}>
-          <View style={styles.image}>
-            <Image
-              source={{uri: product.bookImage}}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Entypo
+              name="chevron-left"
               style={{
-                width: '100%',
-                height: '100%',
-                resizeMode: 'contain',
+                fontSize: 18,
+                color: colors.white,
+                padding: 12,
+                borderRadius: 20,
+                backgroundColor: colors.lightGray,
               }}
             />
+          </TouchableOpacity>
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text
+              numberOfLines={1}
+              style={{
+                color: colors.textColor,
+                fontSize: 20,
+                fontWeight: '600',
+                width: 250,
+                textAlign: 'center',
+              }}>
+              {product.bookTitle}
+            </Text>
+            <Text
+              numberOfLines={1}
+              style={{
+                color: colors.textColor,
+                fontSize: 16,
+                fontWeight: '500',
+                width: 250,
+                textAlign: 'center',
+              }}>
+              by: {product.bookAuthor}
+            </Text>
           </View>
+
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Feather
+              name="bookmark"
+              style={{
+                fontSize: 24,
+                color: colors.white,
+                paddingVertical: 12,
+                borderRadius: 4,
+                backgroundColor: colors.primary,
+              }}
+            />
+          </TouchableOpacity>
         </View>
-        <View
-          style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            paddingHorizontal: 4,
-            marginTop: 30,
-            marginBottom: 52,
-          }}>
-          <View>
-            <Text style={styles.title}>{product.bookTitle}</Text>
-          </View>
-
-          <Text style={{color: '#06070D', textAlign: 'center', marginTop: 12}}>
-            {' '}
-            {product.bookAuthor}
+        <View style={styles.bookImage}>
+          <Image style={styles.image} source={{uri: product.bookImage}} />
+        </View>
+        <View style={styles.desc}>
+          <Text style={{fontSize: 18, color: colors.white, fontWeight: '500'}}>
+            Mô tả: {product.description}
           </Text>
-
-          <Text style={styles.desc}>{product.description}</Text>
         </View>
       </ScrollView>
-      <View style={styles.bottom}>
-        <TouchableOpacity
-          onPress={handleRead}
-          style={{
-            width: '30%',
-            height: '90%',
-            backgroundColor: colors.black,
-            borderRadius: 20,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Text
-            style={{
-              fontSize: 12,
-              fontWeight: '500',
-              letterSpacing: 1,
-              color: colors.white,
-              textTransform: 'uppercase',
-            }}>
-            
-            {isBookExist ? "Đọc tiếp" : "Đọc"}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          // onPress={() => (product.isAvailable ? addToCart(product.id) : null)}
-          style={{
-            width: '35%',
-            height: '90%',
-            backgroundColor: colors.black,
-            borderRadius: 20,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Text
-            style={{
-              fontSize: 12,
-              fontWeight: '500',
-              letterSpacing: 1,
-              color: colors.white,
-              textTransform: 'uppercase',
-            }}>
-            Mượn
-            {/* {product.isAvailable ? 'Add to cart' : 'Not Avialable'} */}
-          </Text>
-        </TouchableOpacity>
-      </View>
+        {product.type == 'book' ? (
+          <View style={styles.bottom}>
+            <TouchableOpacity onPress={handleRead} style={styles.buttonBottom}>
+              <Text style={styles.textBottom}>
+                {isBookExist ? 'Đọc tiếp' : 'Đọc'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => handleBorrow(product.bookId, user.userId)}
+              style={styles.buttonBottom}>
+              <Text style={styles.textBottom}>
+                Mượn
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.bottom}>
+            <TouchableOpacity
+              onPress={handleListen}
+              style={styles.buttonBottom}>
+              <Text style={styles.textBottom}>
+                Nghe
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
     </View>
   );
 };
@@ -134,79 +149,67 @@ export default Detail;
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: colors.white,
+    flex: 1,
+    backgroundColor: colors.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     position: 'relative',
   },
-  container_image: {
-    paddingVertical: 16,
-    
-    width: '100%',
-    backgroundColor: colors.light,
-    borderBottomRightRadius: 20,
-    borderBottomLeftRadius: 20,
-    position: 'relative',
-    justifyContent: 'center',
+  header: {
+    display: 'flex',
     alignItems: 'center',
-    marginBottom: 4,
-  },
-  prev_icon: {
-    width: '100%',
-    flexDirection: 'row',
     justifyContent: 'space-between',
-  },
-  image: {
-    width: sizes.width,
-    height: 240,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 24,
-    textAlign: 'center',
-    fontWeight: 'bold',
-    letterSpacing: 0.5,
-    marginVertical: 4,
-    color: colors.black,
-    maxWidth: '84%',
-  },
-  desc: {
-    fontSize: 12,
-    color: colors.black,
-    fontWeight: '400',
-    letterSpacing: 1,
-    opacity: 0.5,
-    lineHeight: 20,
-    maxWidth: '85%',
-    maxHeight: 58,
-    marginBottom: 18,
-    marginTop: 18,
+    flexDirection: 'row',
+    marginBottom: 8,
   },
 
-  info: {
-    fontSize: 32,
-    color: colors.black,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
-    borderRadius: 100,
-    marginRight: 10,
+  bookImage: {
+    width: '100%',
+    height: 400,
+    resizeMode: 'cover',
+    borderRadius: 30,
+    marginBottom: 4,
   },
+  image: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 30,
+  },
+  desc: {
+    marginTop: 12,
+    marginBottom: 50,
+  },
+
   bottom: {
     position: 'absolute',
+
+    backgroundColor: colors.primary,
     flexDirection: 'row',
     gap: 20,
-    backgroundColor: colors.white,
     shadowColor: '#000',
     shadowOffset: {width: -2, height: 4},
     shadowOpacity: 0.2,
     shadowRadius: 3,
-    paddingTop: 4,
-    bottom: 20,
+    paddingVertical: 8,
+    bottom: 0,
     height: '8%',
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  buttonBottom: {
+    width: '35%',
+    height: '90%',
+    backgroundColor: colors.white,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textBottom: {
+    fontSize: 14,
+    fontWeight: '700',
+    letterSpacing: 1,
+    color: colors.black,
+    textTransform: 'uppercase',
   },
 });

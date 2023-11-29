@@ -3,16 +3,12 @@ import {
   View,
   Text,
   Image,
-  TouchableOpacity,
-  TouchableHighlight,
   ScrollView,
-  Pressable,
   StyleSheet,
+  TouchableOpacity,
 } from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {colors} from '../constants/theme';
-
-export default function BookNew({navigation, booksNew, typeBook}) {
+const Recommend = ({booksPopular,navigation, typeBook}) => {
   return (
     <View
       style={{
@@ -25,33 +21,34 @@ export default function BookNew({navigation, booksNew, typeBook}) {
           fontSize: 16,
           marginBottom: 4,
         }}>
-        Mới
+        Gợi ý
       </Text>
       <ScrollView
         contentContainerStyle={{flexGrow: 1, gap: 16}}
         horizontal
         showsHorizontalScrollIndicator={false}>
-        {booksNew.map(item =>
-          item.type == typeBook ? (
-            <View key={item.bookId} style={styles.bookItem}>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate('Detail', {
-                    product: item,
-                  });
-                }}>
-                <Image style={styles.bookImg} source={{uri: item.bookImage}} />
-                <Text numberOfLines={1} style={styles.bookTitle}>
-                  {item.bookTitle}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ) : null,
-        )}
+        {booksPopular.map(item => (
+          item.type == typeBook ?<View key={item.bookId} style={styles.bookItem}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('Detail', {
+                product: item,
+              });
+            }}>
+            <Image style={styles.bookImg} source={{uri: item.bookImage}} />
+            <Text numberOfLines={1} style={styles.bookTitle}>
+              {item.bookTitle}
+            </Text>
+            <Text numberOfLines={1} style={styles.bookAuthor}>
+              {item.bookAuthor}
+            </Text>
+          </TouchableOpacity>
+        </View> : null
+        ))}
       </ScrollView>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -81,6 +78,7 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 12,
     resizeMode: 'cover',
+    marginBottom: 4,
   },
   bookTitle: {
     textAlign: 'center',
@@ -89,4 +87,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  bookAuthor: {
+    textAlign: 'center',
+    color: colors.textColor,
+    textTransform: 'capitalize',
+    fontSize: 13,
+    fontWeight: '500',
+  },
 });
+
+export default Recommend;

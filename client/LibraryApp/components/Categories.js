@@ -15,7 +15,7 @@ const items = [
   {
     id: 1,
     image: require('../assets/images/images.jpg'),
-    text: 'Công Nghệ',
+    text: 'Công Nghệ', 
   },
   {
     id: 2,

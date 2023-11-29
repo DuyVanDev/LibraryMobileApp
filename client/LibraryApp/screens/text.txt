@@ -1,0 +1,141 @@
+import React, {useEffect, useState} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Pressable,
+  FlatList,
+} from 'react-native';
+import api from '../api/client';
+import {useSelector, useDispatch} from 'react-redux';
+import {colors, sizes} from '../constants/theme';
+import Entypo from 'react-native-vector-icons/Entypo';
+import {fetchBooksReceivedByUserId, fetchBooksRequestingByUserId} from '../redux/slice/bookSlice';
+import BooksRequesting from '../components/BooksRequesting';
+import BooksReceived from './BooksReceived';
+
+
+const Transactions = ({navigation}) => {
+  const dispatch = useDispatch();
+
+  const [type, setType] = useState(1);
+  const list = [
+    {
+      id: 1,
+      text: 'Yêu cầu',
+    },
+    {
+      id: 2,
+      text: 'Đang mượn',
+    },
+    {
+      id: 3,
+      text: 'Đang trả',
+    },
+  ];
+
+  useEffect(() => {
+    dispatch(fetchBooksRequestingByUserId(user.userId));
+    dispatch(fetchBooksReceivedByUserId(user.userId));
+  }, [type]);
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          activeOpacity={1}
+          underlayColor={'#ccd0d5'}>
+          <Entypo
+            name="chevron-left"
+            style={{
+              fontSize: 18,
+              color: colors.white,
+              padding: 10,
+              borderRadius: 20,
+              backgroundColor: colors.secondary,
+            }}
+          />
+        </TouchableOpacity>
+        <Text style={{fontSize: 26, fontWeight: '700', color: colors.white}}>
+          Thủ tục
+        </Text>
+      </View>
+      <View>
+        <ScrollView
+          style={styles.lstCat}
+          horizontal
+          showsHorizontalScrollIndicator={false}>
+          {list.map(item => {
+            return (
+              <TouchableOpacity
+                onPress={() => {
+                  setType(item.id);
+                }}
+                style={
+                  item.id == type ? styles.catButtonActive : styles.catButton
+                }
+                key={item.id}>
+                <Text
+                  style={
+                    item.id == type ? styles.catTextActive : styles.catText
+                  }>
+                  {item.text}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+      {type == 1 ? <BooksRequesting /> : <BooksReceived />}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.primary,
+    paddingHorizontal: 16,
+  },
+  header: {
+    display: 'flex',
+    flexDirection: 'row',
+    paddingVertical: 8,
+    gap: 8,
+  },
+  lstCat: {
+    display: 'flex',
+  },
+  catButtonActive: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingVertical: 12,
+    backgroundColor: colors.white,
+    borderColor: colors.white,
+    width: 120,
+    marginRight: 10,
+  },
+  catButton: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingVertical: 12,
+    borderColor: 'white',
+    width: 120,
+    marginRight: 10,
+  },
+  catTextActive: {
+    textAlign: 'center',
+    color: colors.black,
+    fontWeight: '700',
+  },
+  catText: {
+    textAlign: 'center',
+    color: colors.textColor,
+    fontWeight: '700',
+  },
+});
+
+export default Transactions;

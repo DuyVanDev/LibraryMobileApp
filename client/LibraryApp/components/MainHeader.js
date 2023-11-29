@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   Easing,
   TouchableHighlight,
+  TouchableOpacity,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {colors, sizes} from '../constants/theme';
@@ -17,11 +18,9 @@ import { Divider } from 'react-native-paper';
 
 const AnimatedIcon = Animated.createAnimatedComponent(Icon);
 
-const MainHeader = ({navigation}) => {
+const MainHeader = ({navigation, valueStart, valueEnd}) => {
   
-  const [isLoading, setIsLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
-  const [filteredData, setFilteredData] = useState([]);
   const [showSeachData, setShowSearchData] = useState(false);
   
 
@@ -42,7 +41,7 @@ const MainHeader = ({navigation}) => {
       easing: Easing.inOut(Easing.ease),
       useNativeDriver: false,
     }).start();
-    handleShowSearchData();
+    // handleShowSearchData();
   };
 
   const animateView = () => {
@@ -53,7 +52,17 @@ const MainHeader = ({navigation}) => {
       useNativeDriver: false,
     }).start();
     handleHideSearchData();
+    setSearchText("")
+    console.log(searchText)
+    setShowSearchData(false)
+    navigation.navigate("Home")
   };
+
+  const handleSubmit = async () => {
+    if(searchText.trim().length > 0) {
+      navigation.navigate("Search",{searchText})
+    }
+  }
 
   
 
@@ -67,21 +76,28 @@ const MainHeader = ({navigation}) => {
               source={require('../assets/images/logo.png')}
             />
           </View>
-          <TouchableHighlight
+          <View style={{
+            backgroundColor: colors.secondary,
+            width : 120,
+            height: 28,
+            borderRadius : 20
+          }}></View>
+          <TouchableOpacity
             activeOpacity={1}
             underlayColor={'#ccd0d5'}
             onPress={handleFocus}>
             <Icon
               style={{
-                color: colors.black,
-                backgroundColor: '#e4e6eb',
+                color: colors.white,
+                backgroundColor: colors.secondary,
                 borderRadius: 40,
                 padding: 10,
               }}
+              onPress={() => navigation.navigate("Search")}
               name="search-outline"
               size={23}
             />
-          </TouchableHighlight>
+          </TouchableOpacity>
         </View>
         <Animated.View
           style={[
@@ -105,8 +121,10 @@ const MainHeader = ({navigation}) => {
           <TextInput
             style={styles.input}
             placeholder="Tìm kiếm..."
+            placeholderTextColor={colors.white}     
             onFocus={handleFocus}
             onChangeText={text => setSearchText(text)}
+            onSubmitEditing={handleSubmit}
             value={searchText}
           />
         </Animated.View>
@@ -120,7 +138,6 @@ const MainHeader = ({navigation}) => {
           />
         ) : null}
       </View>
-      <Divider style={{height: 2}} />
     </SafeAreaView>
   );
 };
@@ -128,10 +145,11 @@ const MainHeader = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
-    backgroundColor: colors.white,
+    backgroundColor: colors.primary,
   },
   header: {
-    height: 60,
+    paddingVertical: 10,
+    paddingHorizontal : 12,
   },
   img: {
     width: 30,
@@ -140,6 +158,7 @@ const styles = StyleSheet.create({
   header_inner: {
     position: 'absolute',
     paddingHorizontal: 16,
+    paddingVertical : 12,
     left: 0,
     right: 0,
     top: 0,
@@ -152,32 +171,27 @@ const styles = StyleSheet.create({
   },
   searchBox: {
     flexDirection: 'row',
-    backgroundColor: '#f3f3f3',
+    backgroundColor: colors.primary,
     borderRadius: 5,
     alignItems: 'center',
+    borderRadius : 10
   },
   searchIcon: {
     padding: 10,
     borderRadius: 40,
-    backgroundColor: '#e4e6eb',
-    color: 'black',
+    backgroundColor: colors.secondary,
+    color: colors.white,
   },
   input: {
-    height: 60,
     marginLeft: 6,
-    backgroundColor: '#f3f3f3',
-    width: sizes.width,
-    color: 'black',
+    backgroundColor: colors.secondary,
+    flex : 1,
+    color: colors.white,
+    paddingVertical : 10,
+    borderRadius : 10
+    
   },
-  modalContent: {
-    flex: 1,
-    position: 'absolute',
-    backgroundColor: 'blue',
-    top: 60,
-    marginTop: 60,
-    left: 0,
-    right: 0,
-  },
+  
   list_data: {
     position: 'relative',
     left: 0,

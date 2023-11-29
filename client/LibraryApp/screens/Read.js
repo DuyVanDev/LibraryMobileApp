@@ -6,24 +6,21 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import {colors} from '../constants/theme';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {useDispatch, useSelector} from 'react-redux';
-import { stopReading } from '../redux/slice/bookSlice';
+import {stopReading} from '../redux/slice/bookSlice';
 
 const Read = ({navigation, route}) => {
   const {product} = route.params;
   const dispatch = useDispatch();
-  const book = useSelector(state => state.book.booksRecently)
+  const book = useSelector(state => state.book.booksRecently);
 
   const PdfResource = {
     uri: product.fileUpLoad,
     caches: true,
   };
   const result = useSelector(state => {
-    return state.book.booksRecently.find(
-      book => book.bookId == product.bookId,
-    );
+    return state.book.booksRecently.find(book => book.bookId == product.bookId);
   });
 
-  
   const [pageCurrent, setPageCurrent] = useState(result.currentPage || 1);
   const handleBack = () => {
     navigation.goBack();
@@ -31,24 +28,36 @@ const Read = ({navigation, route}) => {
   };
   const handleStopReading = () => {
     // Ngừng đọc sách với bookId cụ thể
-    dispatch(stopReading({bookId :product.bookId, currentPage : pageCurrent}))
+    dispatch(stopReading({bookId: product.bookId, currentPage: pageCurrent}));
   };
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      <View>
+      <View
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          paddingHorizontal: 4,
+          flexDirection: 'row',
+          backgroundColor: colors.primary,
+          paddingVertical: 4,
+        }}>
         <TouchableHighlight onPress={handleBack}>
           <Entypo
             name="chevron-left"
             style={{
               fontSize: 18,
-              color: colors.black,
+              color: colors.white,
               padding: 12,
-              backgroundColor: colors.white,
-              borderRadius: 10,
+              backgroundColor: colors.lightGray,
+              borderRadius: 20,
             }}
           />
         </TouchableHighlight>
+        <View style={{flexGrow : 1}}>
+          <Text numberOfLines={1} style={{textAlign : "center",color : colors.white,width: Dimensions.width}}>{product.bookTitle}</Text>
+        </View>
       </View>
       <Pdf
         page={pageCurrent}
@@ -57,7 +66,7 @@ const Read = ({navigation, route}) => {
           console.log(`Number of pages: ${numberOfPages}`);
         }}
         onPageChanged={(page, numberOfPages) => {
-          setPageCurrent(page)
+          setPageCurrent(page);
         }}
         trustAllCerts={false}
         style={styles.pdf}

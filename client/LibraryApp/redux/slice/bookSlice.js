@@ -27,7 +27,7 @@ export const fetchBooksPopular = createAsyncThunk(
   'book/fetchBooksPopular',
   async (bookId, thunkAPI) => {
     try {
-      const response = await api.get('/api/book');
+      const response = await api.get('/api/book/popular');
       const bookData = await response.data.result;
       return bookData;
     } catch (error) {
@@ -40,7 +40,7 @@ export const fetchBooksNew = createAsyncThunk(
   'book/fetchBooksNew',
   async (bookId, thunkAPI) => {
     try {
-      const response = await api.get('/api/book');
+      const response = await api.get('/api/book/new');
       const bookData = await response.data.result;
       return bookData;
     } catch (error) {
@@ -49,46 +49,74 @@ export const fetchBooksNew = createAsyncThunk(
   },
 );
 
-// export const fetchBooksByCategory = createAsyncThunk(
-//   'book/fetchBooksByCategory',
-//   async (cId, thunkAPI) => {
-//     try {
-//       const response = await api.get(`api/Book/category?cat=${cId}`);
-//       const bookData = await response.data.result;
-//       return bookData;
-//     } catch (error) {
-//       return thunkAPI.rejectWithValue(error.message);
-//     }
-//   },
-// );
-export const fetchBooksByCategoryId = createAsyncThunk('book/fetchBooksByCategoryId', async (categoryId,thunkAPI) => {
-  try {
-    const response = await api.get(`/api/book/category?cat=${categoryId.categoryId}`);
-    const bookData = await response.data.result;
-    console.log(bookData)
-    return bookData;
-  } catch (error) {
-    return thunkAPI.rejectWithValue(error.message);
-  }
-});
+export const fetchBookReceived = createAsyncThunk(
+  'book/fetchBookReceived',
+  async (userId, thunkAPI) => {
+    try {
+      const response = await api.get('/api/book/new');
+      const bookData = await response.data.result;
+      return bookData;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
 
-// export const selectBooksByCategoryId = (categoryId) => createSelector(
-//   (state) => state.booksByCategory[categoryId],
-//   (books) => books || []
-// );
+
+export const fetchBooksByCategoryId = createAsyncThunk(
+  'book/fetchBooksByCategoryId',
+  async (categoryId, thunkAPI) => {
+    try {
+      const response = await api.get(
+        `/api/book/category?cat=${categoryId.categoryId}`,
+      );
+      const bookData = await response.data.result;
+      return bookData;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
+
+export const fetchBooksRequestingByUserId = createAsyncThunk(
+  'book/fetchBooksRequestByUserId',
+  async (userId,thunkAPI) => {
+    try {
+      const response = await api.get(`/api/book/request?userId=${userId}`);
+      const data = await response.data;
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
+
+export const fetchBooksReceivedByUserId = createAsyncThunk(
+  'book/fetchBooksReceivedByUserId',
+  async (userId,thunkAPI) => {
+    try {
+      const response = await api.get(`/api/book/received?userId=${userId}`);
+      const data = await response.data;
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
 
 const initialState = {
   books: [],
   booksByCategory: {},
-  isLoadingBooksByCategory : "idle",
+  isLoadingBooksByCategory: 'idle',
   isLoadingBooks: 'idle',
   isLoadingBooksNew: 'idle',
   isLoadingBooksPopular: 'idle',
-  bookDetail: [],
   booksRecently: [],
   usedBookIds: [],
   booksPopular: [],
   booksNew: [],
+  booksRequesting: [],
+  booksReceived: []
 };
 const bookSlice = createSlice({
   name: 'book',
@@ -97,17 +125,24 @@ const bookSlice = createSlice({
     addBookRecently: (state, action) => {
       const {bookId} = action.payload;
 
-      const bookExists = state.booksRecently.find(
+      const bookExists = state.booksRecently.findIndex(
         book => book.bookId === bookId,
       );
-      if (!bookExists) {
+      if (bookExists == -1) {
         state.booksRecently = [
-          ...state.booksRecently,
           {...action.payload, currentPage: 1},
+          ...state.booksRecently,
         ];
+      } else {
+        let objectToMove = state.booksRecently.splice(bookExists, 1)[0];
 
-        // Nếu cuốn sách đã tồn tại, cập nhật trang hiện tại
+        state.booksRecently.unshift(objectToMove);
       }
+      // Nếu cuốn sách đã tồn tại
+    },
+    clearBookRe: (state, action) => {
+      (state.booksRecently = []), (state.books = []), (state.bookDetail = []);
+      (state.booksPopular = []), (state.booksNew = []);
     },
     startReading: (state, action) => {
       const {bookId} = action.payload;
@@ -157,12 +192,18 @@ const bookSlice = createSlice({
         state.isLoadingBooksByCategory = 'pending';
       })
       .addCase(fetchBooksByCategoryId.fulfilled, (state, action) => {
-        const categoryId = action.meta.arg
+        const categoryId = action.meta.arg;
         state.booksByCategory[categoryId.categoryId] = action.payload;
+      })
+      .addCase(fetchBooksRequestingByUserId.fulfilled, (state, action) => {
+        state.booksRequesting = action.payload;
+      })
+      .addCase(fetchBooksReceivedByUserId.fulfilled, (state, action) => {
+        state.booksReceived = action.payload;
       });
   },
 });
-export const {addBookRecently, startReading, stopReading} =
+export const {addBookRecently, startReading, stopReading, clearBookRe} =
   bookSlice.actions;
 
 export default bookSlice.reducer;
