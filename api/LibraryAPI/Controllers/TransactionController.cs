@@ -27,11 +27,16 @@ namespace LibraryAPI.Controllers
             return Ok(result);
         }
 
-        [HttpPost]
+        [HttpPost("borrow/")]
 
         public async Task<IActionResult> BorrowBook([FromQuery] int bookId, [FromQuery] int userId)
         {
-            if(!ModelState.IsValid)
+            var check = _transactionService.CheckQuantity(bookId);
+            if(check == false)
+            {
+                return BadRequest("Khong du so luong");
+            }
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -39,17 +44,19 @@ namespace LibraryAPI.Controllers
             return Ok("done");
         }
 
-        [HttpPost("/cancel")]
+        [HttpPost("cancel/")]
 
-        public async Task<IActionResult> CancelRequestBorrow([FromQuery] int tranId)
+        public async Task<IActionResult> CancelRequestBorrow([FromQuery] int bookId,[FromQuery] int userId)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            await _transactionService.CancelRequestBorrow(tranId);
+             await _transactionService.CancelRequestBorrow(bookId, userId);
             return Ok("done");
         }
+
+       
 
     }
 }

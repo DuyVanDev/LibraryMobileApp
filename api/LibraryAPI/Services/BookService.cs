@@ -44,7 +44,8 @@ namespace LibraryAPI.Services
                  BookImage = b.BookImage,
                  
                  ViewTotal = b.ViewTotal,
-                 Category = b.Category
+                 Category = b.Category,
+                 Type = b.Type,
              })
              .ToList();
 
@@ -71,7 +72,8 @@ namespace LibraryAPI.Services
                  FileUpLoad = b.FileUpLoad,
                  BookImage = b.BookPosition,
                  ViewTotal = b.ViewTotal,
-                 Category = b.Category
+                 Category = b.Category,
+                 Type = b.Type,
              })
              .FirstOrDefault(b => b.BookId == bookId);
 
@@ -100,7 +102,8 @@ namespace LibraryAPI.Services
                  FileUpLoad = b.FileUpLoad,
                  BookImage = b.BookImage,
                  ViewTotal = b.ViewTotal,
-                 Category = b.Category
+                 Category = b.Category,
+                 Type = b.Type,
              })
              .ToList();
 
@@ -144,7 +147,8 @@ namespace LibraryAPI.Services
                FileUpLoad = b.FileUpLoad,
                BookImage = b.BookImage,
                ViewTotal = b.ViewTotal,
-               Category = b.Category
+               Category = b.Category,
+               Type = b.Type,
            })
              .ToList();
             return books;
@@ -178,7 +182,8 @@ namespace LibraryAPI.Services
                 BookImage = b.BookImage,
 
                 ViewTotal = b.ViewTotal,
-                Category = b.Category
+                Category = b.Category,
+                Type = b.Type,
             })
             .ToList();
 
@@ -209,11 +214,80 @@ namespace LibraryAPI.Services
                 BookImage = b.BookImage,
 
                 ViewTotal = b.ViewTotal,
-                Category = b.Category
+                Category = b.Category,
+                Type= b.Type,
             })
             .ToList();
 
             return booksWithCategories;
+        }
+
+        public async Task <ICollection<Book>> GetBooksReceived(int userId)
+        {
+            var joinedData = _context.Transactions
+            .Join(_context.Books, t => t.BookId, b => b.BookId, (t, b) => new { t, b })
+            .Where(result => result.t.UserId == userId && result.t.TranStatus == "Accepted_Request")
+            .Select(result => new Book
+            {
+                BookId = result.b.BookId,
+                BookPosition = result.b.BookPosition,
+                BookTitle = result.b.BookTitle,
+                Description = result.b.Description,
+                BookStatus = result.b.BookStatus,
+                BookAuthor = result.b.BookAuthor,
+                Publisher = result.b.Publisher,
+                Isbn = result.b.Isbn,
+                Language = result.b.Language,
+                CopyRights = result.b.CopyRights,
+                Source = result.b.Source,
+                Quantity = result.b.Quantity,
+                FileUpLoad = result.b.FileUpLoad,
+                BookImage = result.b.BookImage,
+
+                ViewTotal = result.b.ViewTotal,
+                Category = result.b.Category,
+                Type = result.b.Type,
+                // Add other properties as needed
+            }).ToList();
+
+
+
+            return joinedData;
+
+        }
+
+        public async Task<ICollection<Book>> GetBooksRequest(int userId)
+        {
+            var joinedData = _context.Transactions
+           .Join(_context.Books, t => t.BookId, b => b.BookId, (t, b) => new { t, b })
+           .Where(result => result.t.UserId == userId && result.t.TranStatus == "Requested")
+           .Select(result => new Book
+           {
+               BookId = result.b.BookId,
+               BookPosition = result.b.BookPosition,
+               BookTitle = result.b.BookTitle,
+               Description = result.b.Description,
+               BookStatus = result.b.BookStatus,
+               BookAuthor = result.b.BookAuthor,
+               Publisher = result.b.Publisher,
+               Isbn = result.b.Isbn,
+               Language = result.b.Language,
+               CopyRights = result.b.CopyRights,
+               Source = result.b.Source,
+               Quantity = result.b.Quantity,
+               FileUpLoad = result.b.FileUpLoad,
+               BookImage = result.b.BookImage,
+
+               ViewTotal = result.b.ViewTotal,
+               Category = result.b.Category,
+               Type = result.b.Type,
+               // Add other properties as needed
+           }).ToList();
+
+
+
+            return joinedData;
+
         }
     }
 }

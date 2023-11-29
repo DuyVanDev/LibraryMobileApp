@@ -10,8 +10,21 @@ namespace LibraryAPI.Services
         {
             _context = context;
         }
+
+        public bool CheckQuantity(int bookId)
+        {
+            var book = _context.Books.FirstOrDefault(b => b.BookId == bookId);
+            if (book.Quantity == 0)
+            {
+                return false;
+            }
+            return true;
+        }
+
         public async Task BorrowBook(int bookId, int userId)
         {
+            Book book = _context.Books.FirstOrDefault(b => b.BookId == bookId);
+            book.Quantity = book.Quantity - 1;
             var query =  new Transaction
                 {
                     BookId = bookId,
@@ -26,19 +39,26 @@ namespace LibraryAPI.Services
                     TranDateReturned= null,
 
                 };
-            await _context.AddAsync(query);
+            await _context.Transactions.AddAsync(query);
             await _context.SaveChangesAsync();
             return;
         }
 
-        public async Task CancelRequestBorrow(int tranId)
+        public async Task CancelRequestBorrow(int bookId, int userId)
         {
-            Transaction transaction = _context.Transactions.FirstOrDefault(t => t.TranId == tranId);
-            Book book = _context.Books.FirstOrDefault(b => b.BookId == transaction.BookId);
-            book.Quantity = book.Quantity + 1;
-            _context.Transactions.Remove(transaction);
-            _context.SaveChangesAsync();
+            var a = bookId;
+            Transaction transaction = _context.Transactions.FirstOrDefault(t => t.BookId == bookId && t.UserId == userId);
+            Book book = _context.Books.FirstOrDefault(b => b.BookId == transaction.BookId && b.BookId == bookId);
+            
+          
+                book.Quantity = book.Quantity + 1;
+                _context.Transactions.Remove(transaction);
+                _context.SaveChangesAsync();
+            return ;
+
         }
+
+       
 
         public async Task<ICollection<Transaction>> GetTransactions()
         {

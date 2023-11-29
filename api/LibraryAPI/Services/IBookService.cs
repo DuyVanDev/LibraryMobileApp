@@ -14,5 +14,10 @@ namespace LibraryAPI.Services
 
         Task<ICollection<Book>> GetBooksPopular();
         Task<ICollection<Book>> GetBooksNew();
+
+        Task <ICollection<Book>> GetBooksReceived(int userId);
+        Task<ICollection<Book>> GetBooksRequest(int userId);
+
+        
     }
 }

@@ -16,10 +16,9 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddDbContext<QltvContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
 builder.Services.AddCors(p => p.AddPolicy("corspolicy", build =>
 {
-    build.WithOrigins("http://192.168.1.164:5000").AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
+    build.WithOrigins("http://192.168.0.102:5000").AllowAnyHeader().AllowAnyMethod();
 }));
 
 

@@ -39,7 +39,9 @@ public partial class Book
 
     public int? ViewTotal { get; set; }
 
+    public string? Type { get; set; }
+
     public virtual Category? Category { get; set; }
 
-    public virtual ICollection<Transaction>? Transactions { get; set; }
+    public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 }

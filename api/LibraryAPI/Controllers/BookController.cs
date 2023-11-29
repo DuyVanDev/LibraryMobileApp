@@ -80,5 +80,30 @@ namespace LibraryAPI.Controllers
             var books = _bookService.GetBooksNew();
             return Ok(books);
         }
+
+        [HttpGet("received/")]
+
+        public async Task<IActionResult> GetTransactionReceivedByUserId([FromQuery] int userId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var books = await _bookService.GetBooksReceived(userId);
+            return Ok(books);
+        }
+
+
+        [HttpGet("request/")]
+
+        public async Task<IActionResult> GetTransactionRequestByUserId([FromQuery] int userId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var books = await _bookService.GetBooksRequest(userId);
+            return Ok(books);
+        }
     }
 }

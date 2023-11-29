@@ -1,4 +1,5 @@
-﻿using LibraryAPI.Services;
+﻿using LibraryAPI.Models;
+using LibraryAPI.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,6 +25,18 @@ namespace LibraryAPI.Controllers
             }
             var users = await _userService.GetUsers();
             return Ok(users);
+        }
+
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login([FromForm] string email,[FromForm] string password)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var result = await _userService.Login(email, password);
+            return Ok(result);
+
         }
     }
 }
